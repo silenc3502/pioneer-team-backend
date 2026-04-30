@@ -392,3 +392,19 @@ redis.Redis(...)
 - Router에는 비즈니스 로직을 작성하면 안 된다.
 
 모든 코드는 **이 CLAUDE.md 규칙을 MUST 준수해야 한다.**
+
+---
+
+# Cross-Domain System Rules
+
+## Tracking System
+
+Tracking 관련 구현은 반드시 `DATA_TRACKING.md` 규칙을 따른다.
+
+- Tracking은 일반 Domain이 아니라 System-Level Concern이다
+- Tracking 구현 시 domain 규칙보다 DATA_TRACKING.md가 우선한다
+- Event, Journey, Session 처리 로직은 해당 문서를 반드시 참조해야 한다
+
+## MUST
+
+- Tracking 관련 코드 작성 시 DATA_TRACKING.md를 읽지 않고 구현하는 것 금지

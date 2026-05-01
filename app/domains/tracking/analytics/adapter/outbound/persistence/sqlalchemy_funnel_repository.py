@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from app.domains.tracking.analytics.application.port.funnel_repository import (
     FunnelRepository,
 )
+from app.domains.tracking.analytics.domain.value_object.content_filter import (
+    ContentFilter,
+)
 from app.domains.tracking.analytics.domain.value_object.funnel_count import FunnelCount
 from app.domains.tracking.analytics.domain.value_object.funnel_stage import FunnelStage
 from app.domains.tracking.analytics.domain.value_object.period import TimeRange
@@ -17,7 +20,9 @@ class SqlAlchemyFunnelRepository(FunnelRepository):
         self._session = session
 
     def count_distinct_sessions_by_stage(
-        self, time_range: TimeRange
+        self,
+        time_range: TimeRange,
+        content_filter: ContentFilter,
     ) -> list[FunnelCount]:
         stage_values = [stage.value for stage in FunnelStage]
         statement = (
@@ -32,6 +37,12 @@ class SqlAlchemyFunnelRepository(FunnelRepository):
             )
             .group_by(TrackingEventORM.event_type)
         )
+        if content_filter.is_active:
+            statement = statement.where(
+                TrackingEventORM.content_id.startswith(
+                    content_filter.prefix, autoescape=True
+                )
+            )
         rows = self._session.execute(statement).all()
         counts_by_stage: dict[str, int] = {
             row.event_type: int(row.sessions) for row in rows

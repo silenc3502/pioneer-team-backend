@@ -19,6 +19,10 @@ from app.domains.tracking.analytics.domain.service.period_resolver import (
     InvalidPeriodError,
     resolve_time_range,
 )
+from app.domains.tracking.analytics.domain.value_object.content_filter import (
+    CONTENT_KEY_MAX_LENGTH,
+    ContentFilter,
+)
 from app.domains.tracking.analytics.domain.value_object.period import PeriodOption
 
 
@@ -59,6 +63,11 @@ def create_analytics_router(
         period: PeriodOption | None = Query(default=None),
         start: int | None = Query(default=None, ge=0),
         end: int | None = Query(default=None, ge=0),
+        content_id: str | None = Query(
+            default=None,
+            min_length=1,
+            max_length=CONTENT_KEY_MAX_LENGTH,
+        ),
         session: Session = Depends(session_dependency),
     ) -> FunnelResponse:
         try:
@@ -74,9 +83,17 @@ def create_analytics_router(
                 detail=str(exc),
             ) from exc
 
+        try:
+            content_filter = ContentFilter(prefix=content_id)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(exc),
+            ) from exc
+
         repository = SqlAlchemyFunnelRepository(session)
         usecase = GetFunnelMetricsUseCase(repository)
-        metrics = usecase.execute(time_range)
+        metrics = usecase.execute(time_range, content_filter)
         return FunnelResponse(
             stages=[
                 FunnelStageItem(

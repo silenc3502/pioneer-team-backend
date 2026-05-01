@@ -62,3 +62,12 @@ def resolve_time_range(
         raise InvalidPeriodError(f"알 수 없는 기간 옵션: {option}")
 
     return TimeRange(start_ms=start_resolved_ms, end_ms=end_resolved_ms)
+
+
+def derive_previous_range(time_range: TimeRange) -> TimeRange:
+    length = time_range.end_ms - time_range.start_ms
+    previous_end = max(0, time_range.start_ms - 1)
+    previous_start = max(0, time_range.start_ms - length - 1)
+    if previous_start > previous_end:
+        previous_start = previous_end
+    return TimeRange(start_ms=previous_start, end_ms=previous_end)

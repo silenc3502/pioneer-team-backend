@@ -4,6 +4,9 @@ from app.domains.tracking.analytics.application.port.funnel_repository import (
 from app.domains.tracking.analytics.domain.service.conversion_rate_calculator import (
     compute_funnel_metrics,
 )
+from app.domains.tracking.analytics.domain.service.period_resolver import (
+    derive_previous_range,
+)
 from app.domains.tracking.analytics.domain.value_object.content_filter import (
     ContentFilter,
 )
@@ -22,7 +25,11 @@ class GetFunnelMetricsUseCase:
         time_range: TimeRange,
         content_filter: ContentFilter,
     ) -> list[FunnelStageMetrics]:
-        counts = self._repository.count_distinct_sessions_by_stage(
+        current = self._repository.count_distinct_sessions_by_stage(
             time_range, content_filter
         )
-        return compute_funnel_metrics(counts)
+        previous_range = derive_previous_range(time_range)
+        previous = self._repository.count_distinct_sessions_by_stage(
+            previous_range, content_filter
+        )
+        return compute_funnel_metrics(current, previous)

@@ -100,6 +100,8 @@ def create_analytics_router(
                     event_type=metric.stage.value,
                     count=metric.distinct_sessions,
                     conversion_rate=metric.conversion_rate,
+                    previous_count=metric.previous_distinct_sessions,
+                    delta_rate=metric.delta_rate,
                 )
                 for metric in metrics
             ]

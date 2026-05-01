@@ -1,0 +1,41 @@
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# AI tooling
+.claude/
+memory/
+
+# Docs / dev-only
+*.md
+test_main.http
+tests/
+
+# Docker meta
+Dockerfile
+docker-compose.yml
+.dockerignore

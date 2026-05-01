@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     dashboard_cookie_name: str = "dashboard_gate"
     dashboard_cookie_secure: bool = False
 
+    analytics_timezone: str = "Asia/Seoul"
+
     @property
     def database_url(self) -> str:
         user = quote_plus(self.mysql_user)

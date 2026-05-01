@@ -6,6 +6,7 @@ from app.domains.tracking.analytics.application.port.funnel_repository import (
 )
 from app.domains.tracking.analytics.domain.value_object.funnel_count import FunnelCount
 from app.domains.tracking.analytics.domain.value_object.funnel_stage import FunnelStage
+from app.domains.tracking.analytics.domain.value_object.period import TimeRange
 from app.domains.tracking.ingestion.infrastructure.orm.tracking_event_orm import (
     TrackingEventORM,
 )
@@ -15,18 +16,26 @@ class SqlAlchemyFunnelRepository(FunnelRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    def count_distinct_sessions_by_stage(self) -> list[FunnelCount]:
+    def count_distinct_sessions_by_stage(
+        self, time_range: TimeRange
+    ) -> list[FunnelCount]:
         stage_values = [stage.value for stage in FunnelStage]
         statement = (
             select(
                 TrackingEventORM.event_type,
                 func.count(distinct(TrackingEventORM.session_id)).label("sessions"),
             )
-            .where(TrackingEventORM.event_type.in_(stage_values))
+            .where(
+                TrackingEventORM.event_type.in_(stage_values),
+                TrackingEventORM.occurred_at >= time_range.start_ms,
+                TrackingEventORM.occurred_at <= time_range.end_ms,
+            )
             .group_by(TrackingEventORM.event_type)
         )
         rows = self._session.execute(statement).all()
-        counts_by_stage: dict[str, int] = {row.event_type: int(row.sessions) for row in rows}
+        counts_by_stage: dict[str, int] = {
+            row.event_type: int(row.sessions) for row in rows
+        }
         return [
             FunnelCount(
                 stage=stage,

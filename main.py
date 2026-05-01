@@ -73,6 +73,7 @@ app.include_router(
     create_analytics_router(
         session_dependency=get_db_session,
         require_gate_token=require_gate_token,
+        analytics_timezone=settings.analytics_timezone,
     )
 )
 

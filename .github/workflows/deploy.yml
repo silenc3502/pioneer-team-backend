@@ -54,7 +54,7 @@ jobs:
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.REPO_USER }}" --password-stdin
 
       - name: Pull latest image
-        run: docker compose pull
+        run: docker-compose pull
 
       - name: Restart containers
         run: |

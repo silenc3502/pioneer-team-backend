@@ -18,6 +18,9 @@ from app.domains.dashboard_access.application.usecase.verify_dashboard_password_
 from app.domains.dashboard_access.application.usecase.verify_gate_session_usecase import (
     VerifyGateSessionUseCase,
 )
+from app.domains.tracking.analytics.adapter.inbound.api.analytics_router import (
+    create_analytics_router,
+)
 from app.domains.tracking.ingestion.adapter.inbound.api.tracking_event_router import (
     create_tracking_event_router,
 )
@@ -64,6 +67,12 @@ app.include_router(
         verify_gate_session_usecase=verify_gate_session_usecase,
         cookie_name=settings.dashboard_cookie_name,
         cookie_secure=settings.dashboard_cookie_secure,
+    )
+)
+app.include_router(
+    create_analytics_router(
+        session_dependency=get_db_session,
+        require_gate_token=require_gate_token,
     )
 )
 

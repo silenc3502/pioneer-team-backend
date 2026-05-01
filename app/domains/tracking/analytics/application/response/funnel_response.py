@@ -2,8 +2,9 @@ from pydantic import BaseModel
 
 
 class FunnelStageItem(BaseModel):
-    stage: str
+    event_type: str
     count: int
+    conversion_rate: float
 
 
 class FunnelResponse(BaseModel):

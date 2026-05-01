@@ -10,8 +10,8 @@ from app.domains.tracking.analytics.application.response.funnel_response import 
     FunnelResponse,
     FunnelStageItem,
 )
-from app.domains.tracking.analytics.application.usecase.get_funnel_counts_usecase import (
-    GetFunnelCountsUseCase,
+from app.domains.tracking.analytics.application.usecase.get_funnel_metrics_usecase import (
+    GetFunnelMetricsUseCase,
 )
 
 
@@ -34,15 +34,16 @@ def create_analytics_router(
         session: Session = Depends(session_dependency),
     ) -> FunnelResponse:
         repository = SqlAlchemyFunnelRepository(session)
-        usecase = GetFunnelCountsUseCase(repository)
-        counts = usecase.execute()
+        usecase = GetFunnelMetricsUseCase(repository)
+        metrics = usecase.execute()
         return FunnelResponse(
             stages=[
                 FunnelStageItem(
-                    stage=item.stage.value,
-                    count=item.distinct_sessions,
+                    event_type=metric.stage.value,
+                    count=metric.distinct_sessions,
+                    conversion_rate=metric.conversion_rate,
                 )
-                for item in counts
+                for metric in metrics
             ]
         )
 

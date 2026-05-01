@@ -42,26 +42,18 @@ jobs:
     runs-on: [self-hosted, pioneer-team-backend]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create .env file
-        run: |
-          umask 077
-          printf '%s' "${{ secrets.BACKEND_ENV }}" > .env
-
       - name: GHCR Login
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.REPO_USER }}" --password-stdin
+        run: echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.REPO_USER }} --password-stdin
 
       - name: Pull latest image
-        run: docker-compose pull
+        run: docker pull ghcr.io/${{ secrets.REPO_USER }}/pioneer-team-backend:latest
 
-      - name: Restart containers
-        run: |
-          docker-compose down
-          docker-compose up -d
-
-      - name: Cleanup
+      - name: Stop old container
         run: |
           docker image prune -f
-          docker logout ghcr.io
+          docker logout
+
+      - name: Run container
+        run: |
+          docker-compose up -d
+
